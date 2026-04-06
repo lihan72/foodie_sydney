@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lihan's Sydney Foodie Guide</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #faf7f2;
+      --warm: #f5ede0;
+      --brown: #5c3d1e;
+      --brown-light: #8b6040;
+      --accent: #c87941;
+      --text: #2a1f14;
+      --muted: #9a8070;
+      --border: #e8ddd0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(250, 247, 242, 0.92);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--brown);
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .15s, transform .1s;
+    }
+    .nav-cta:hover { background: #b56830; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 64px 32px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 64px;
+    }
+
+    .hero-text { display: flex; flex-direction: column; gap: 20px; }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .hero-eyebrow::before {
+      content: "";
+      display: block;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      color: var(--brown);
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--brown-light);
+      max-width: 420px;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: var(--brown);
+      color: #fff;
+      border-radius: 32px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      align-self: flex-start;
+      transition: background .15s, transform .1s, box-shadow .15s;
+      box-shadow: 0 4px 16px rgba(92, 61, 30, 0.25);
+    }
+    .hero-cta:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(92, 61, 30, 0.3); }
+
+    .hero-image {
+      position: relative;
+    }
+
+    .hero-image img {
+      width: 100%;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(92, 61, 30, 0.18);
+      display: block;
+    }
+
+    .image-badge {
+      position: absolute;
+      bottom: -16px;
+      left: 24px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--brown);
+      box-shadow: 0 4px 16px rgba(0,0,0,.08);
+    }
+
+    /* ── ABOUT ── */
+    .about {
+      max-width: 1100px;
+      margin: 80px auto 0;
+      padding: 0 32px 80px;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .about-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: box-shadow .2s, transform .15s;
+    }
+    .about-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.07); transform: translateY(-2px); }
+
+    .about-icon { font-size: 1.6rem; }
+
+    .about-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .about-value {
+      font-size: 0.95rem;
+      font-weight: 650;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .about-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 32px;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── FOOD PREVIEW ── */
+    .preview {
+      max-width: 1100px;
+      margin: 64px auto;
+      padding: 0 32px;
+      text-align: center;
+    }
+
+    .preview h2 {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--brown);
+      margin-bottom: 12px;
+    }
+
+    .preview p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .stat { text-align: center; }
+
+    .stat-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .explore-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 36px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 32px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background .15s, transform .1s, box-shadow .15s;
+      box-shadow: 0 6px 20px rgba(200, 121, 65, 0.35);
+    }
+    .explore-btn:hover { background: #b56830; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(200, 121, 65, 0.4); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 32px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 40px 20px 32px;
+      }
+
+      .hero-image { order: -1; }
+
+      .image-badge { left: 16px; bottom: -12px; font-size: 0.75rem; }
+
+      .about { padding: 0 20px 60px; margin-top: 60px; }
+      .preview { padding: 0 20px; }
+      footer { padding: 20px; }
+
+      .stats { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">🍜 Lihan's Sydney</span>
+  <a class="nav-cta" href="list.html">
+    Browse the List
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </a>
+</nav>
+
+<section class="hero">
+  <div class="hero-text">
+    <span class="hero-eyebrow">Sydney Foodie Guide</span>
+    <h1>Places Lihan<br>actually <em>loves</em></h1>
+    <p class="hero-desc">
+      A personal collection of restaurants, cafes, and hidden gems across Sydney — built from real visits, real cravings, and a lot of Google Maps pins.
+    </p>
+    <a class="hero-cta" href="list.html">
+      Explore 108 Places
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+
+  <div class="hero-image">
+    <img src="lihan.png" alt="Lihan — fell into the AI rabbit hole, building skills piece by piece, working with AI">
+    <div class="image-badge">
+      <span>🤖</span>
+      <span>Currently deep in the AI rabbit hole</span>
+    </div>
+  </div>
+</section>
+
+<section class="about">
+  <p class="section-label">About Lihan</p>
+  <div class="about-grid">
+
+    <div class="about-card">
+      <span class="about-icon">✨</span>
+      <span class="about-label">MBTI</span>
+      <span class="about-value">ENFJ — The Protagonist</span>
+      <span class="about-sub">Warm, empathetic, always dragging friends to try new restaurants</span>
+    </div>
+
+    <div class="about-card">
+      <span class="about-icon">♋</span>
+      <span class="about-label">Zodiac</span>
+      <span class="about-value">Cancer</span>
+      <span class="about-sub">Fiercely loyal to good food and good people</span>
+    </div>
+
+    <div class="about-card">
+      <span class="about-icon">🏦</span>
+      <span class="about-label">Day Job</span>
+      <span class="about-value">Data Governance at Westpac</span>
+      <span class="about-sub">Making sure data makes sense — one metadata tag at a time</span>
+    </div>
+
+    <div class="about-card">
+      <span class="about-icon">🤖</span>
+      <span class="about-label">Current Obsession</span>
+      <span class="about-value">Building AI Agent Skills</span>
+      <span class="about-sub">Fell into the rabbit hole. Building piece by piece. No regrets.</span>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="preview">
+  <h2>108 places. All personally saved.</h2>
+  <p>From hole-in-the-wall ramen spots to Saturday morning bakeries — this is the full list.</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">108</div>
+      <div class="stat-label">Places</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">11</div>
+      <div class="stat-label">Categories</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">🍜</div>
+      <div class="stat-label">Mostly Japanese</div>
+    </div>
+  </div>
+
+  <a class="explore-btn" href="list.html">
+    Browse the Full List
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </a>
+</section>
+
+<footer>
+  Made with 🍜 and a lot of Google Maps pins &nbsp;·&nbsp; Lihan's Sydney Foodie Guide
+</footer>
+
+</body>
+</html>
