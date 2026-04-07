@@ -1,0 +1,10 @@
+# Input data files (keep local, don't commit CSV/JSON with personal data)
+input/*.csv
+input/*.json
+
+# data/places.json IS committed — it's the public site data (no secrets, CDN photo URLs only)
+
+# Python
+__pycache__/
+*.pyc
+.env
