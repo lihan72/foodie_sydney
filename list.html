@@ -316,6 +316,13 @@
       letter-spacing: 0.01em;
     }
 
+    .card-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
     .maps-btn {
       display: inline-flex;
       align-items: center;
@@ -329,11 +336,10 @@
       border: 1.5px solid #4285f4;
       transition: background .15s, color .15s;
     }
+    .maps-btn:hover { background: #4285f4; color: #fff; }
 
-    .maps-btn:hover {
-      background: #4285f4;
-      color: #fff;
-    }
+    .insta-btn { color: #c13584; border-color: #c13584; }
+    .insta-btn:hover { background: #c13584; color: #fff; }
 
     /* Category colours */
     .c-japanese   { background:#fff0e6; color:#b85700; }
@@ -407,14 +413,33 @@
       gap: 8px;
     }
 
+    .map-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-left: 2px;
+    }
+
     .map-panel-title {
       font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.07em;
       text-transform: uppercase;
       color: var(--text-muted);
-      padding-left: 2px;
     }
+
+    .map-toggle-btn {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background .15s;
+    }
+    .map-toggle-btn:hover { background: var(--warm); }
 
     #map {
       width: 100%;
@@ -526,10 +551,15 @@
       No places found.
     </div>
   </main>
-  <aside class="map-panel">
-    <p class="map-panel-title">📍 Sydney Map</p>
-    <div id="map"></div>
-    <p class="map-hint">Click a suburb to filter &nbsp;·&nbsp; click again to clear</p>
+  <aside class="map-panel" id="map-panel">
+    <div class="map-panel-header">
+      <p class="map-panel-title">📍 Sydney Map</p>
+      <button class="map-toggle-btn" id="map-toggle" onclick="toggleMap()">Hide</button>
+    </div>
+    <div id="map-body">
+      <div id="map"></div>
+      <p class="map-hint">Click a suburb to filter &nbsp;·&nbsp; click again to clear</p>
+    </div>
   </aside>
 </div>
 
@@ -619,7 +649,14 @@ function render() {
     return matchCat && matchQ && matchSuburb;
   });
   document.getElementById("suburb").className = suburb ? "active" : "";
-  if (leafletMap) updateMapMarkers();
+  if (leafletMap) {
+    updateMapMarkers();
+    if (suburb && SUBURB_COORDS[suburb]) {
+      leafletMap.flyTo(SUBURB_COORDS[suburb], 14, { duration: 0.8 });
+    } else if (!suburb) {
+      leafletMap.flyTo([-33.865, 151.170], 12, { duration: 0.8 });
+    }
+  }
 
   document.getElementById("count").textContent = list.length + " places";
 
@@ -651,8 +688,9 @@ function render() {
       ? `<span class="price">${price(p.priceLevel)}</span>`
       : "";
 
+    const suburb = getSuburb(p.address);
     return `
-      <div class="card" onclick="window.open('${p.mapsUrl}','_blank')">
+      <div class="card" onclick="focusSuburb('${suburb.replace(/'/g, "\\'")}')">
         ${photo}${placeholder}
         <div class="card-body">
           <div class="card-name">${p.name}</div>
@@ -661,10 +699,20 @@ function render() {
         </div>
         <div class="card-footer">
           <span class="cat-tag c-${p.cat}">${CAT_LABEL[p.cat]}</span>
-          <a class="maps-btn" href="${p.mapsUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Maps
-          </a>
+          <div class="card-links" onclick="event.stopPropagation()">
+            ${p.website ? `<a class="maps-btn" href="${p.website}" target="_blank" rel="noopener" title="Official website">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              Website
+            </a>` : ""}
+            ${p.instagram ? `<a class="maps-btn insta-btn" href="https://instagram.com/${p.instagram}" target="_blank" rel="noopener" title="Instagram">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              Instagram
+            </a>` : ""}
+            <a class="maps-btn" href="${p.mapsUrl}" target="_blank" rel="noopener" title="Google Maps">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Maps
+            </a>
+          </div>
         </div>
       </div>`;
   }).join("");
@@ -784,6 +832,30 @@ function updateMapMarkers() {
     marker.setIcon(makePinIcon(suburb, displayCats, isActive, isDimmed));
     marker.setZIndexOffset(isActive ? 1000 : isDimmed ? -200 : 0);
   });
+}
+
+function focusSuburb(suburb) {
+  if (!leafletMap || !suburb || !SUBURB_COORDS[suburb]) return;
+  // Show map if hidden
+  const body = document.getElementById("map-body");
+  if (body.style.display === "none") toggleMap();
+  // Fly to suburb
+  leafletMap.flyTo(SUBURB_COORDS[suburb], 15, { duration: 0.8 });
+  // Highlight the marker briefly
+  if (mapMarkers[suburb]) {
+    const { marker } = mapMarkers[suburb];
+    marker.setZIndexOffset(2000);
+    setTimeout(() => marker.setZIndexOffset(0), 2000);
+  }
+}
+
+function toggleMap() {
+  const body = document.getElementById("map-body");
+  const btn = document.getElementById("map-toggle");
+  const hidden = body.style.display === "none";
+  body.style.display = hidden ? "" : "none";
+  btn.textContent = hidden ? "Hide" : "Show map";
+  if (hidden && leafletMap) leafletMap.invalidateSize();
 }
 
 // Sync sticky map panel top with header height

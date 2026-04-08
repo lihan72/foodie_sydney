@@ -23,6 +23,8 @@ foodie_sydney/
 │   └── places_enriched.json  # Output from fetch_places.py
 └── scripts/
     ├── fetch_places.py   # Fetch details + CDN photos from Google Places API
+    ├── fetch_websites.py # Enrich data/places.json with website URLs (Places API)
+    ├── find_instagram.py # Find Instagram handles for places without a website
     ├── inject_places.py  # Copy places_enriched.json → data/places.json
     └── remove_place.py   # Remove a place from data/places.json by name
 ```
@@ -59,28 +61,68 @@ git push
 python scripts/remove_place.py "Place Name"
 ```
 
-### Deploy changes
+### Fetch website URLs (Google Places API)
+Adds `website` field to all places in `data/places.json`. Safe to re-run — skips places that already have a website.
 ```bash
-# Quick (solo use) — temporarily disable branch protection first:
-# Repo → Settings → Branches → Edit → uncheck "Require PR" → Save
-git add list.html index.html
+# 1. Remove API key restriction in Google Cloud Console
+python scripts/fetch_websites.py    # → updates data/places.json in place
+# 2. Re-restrict API key
+git add data/places.json && git commit -m "Add website URLs" && git push
+```
+
+### Find Instagram handles (for places without a website)
+Semi-auto: searches Google for each place's Instagram, prints results for review.
+```bash
+python scripts/find_instagram.py          # dry run — review results first
+python scripts/find_instagram.py --save   # writes confirmed handles to data/places.json
+git add data/places.json && git commit -m "Add Instagram handles" && git push
+```
+
+### Add Instagram manually
+Edit `data/places.json` and add `"instagram": "handle_without_@"` to any entry:
+```json
+{
+  "name": "Cloudhaus Cafe",
+  "instagram": "cloudhauscafe",
+  ...
+}
+```
+
+### Deploy your own changes (branch protection ON, required approvals = 1)
+```bash
+# 1. Create a branch, commit, push
+git checkout -b my-branch
+git add data/places.json list.html
 git commit -m "Update: describe what changed"
-git push
-# Re-enable branch protection after. GitHub Pages auto-deploys in ~1 min.
+git push -u origin my-branch
+
+# 2. Open PR on GitHub → github.com/lihan72/foodie_sydney/pulls
+
+# 3. To merge your own PR (can't self-approve):
+#    Settings → Branches → Edit rule → uncheck "Require PR" → Save
+#    → Merge the PR on GitHub
+#    → Re-enable the rule
+```
+
+### Approve and merge someone else's PR
+```
+GitHub → Pull Requests → open PR → Files changed → Review changes → Approve → Merge
 ```
 
 ---
 
-## Pending Tasks
+## Branch Protection Setup (free GitHub plan)
 
-- [ ] Merge `add-readme` PR — branch `add-readme` is open on GitHub
-  - Steps: Settings → Branches → Edit → uncheck "Require PR" → merge PR → re-enable
+- Rule: `main` branch
+- Required approvals: **1**
+- "Bypass" option not available on free plan
+- **Workaround for own PRs:** temporarily disable the rule, merge, re-enable
 
 ---
 
 ## API Key Management
 
-- Key lives **only in `scripts/fetch_places.py`** — never in any HTML file
+- Key lives **only in scripts** (`fetch_places.py`, `fetch_websites.py`) — never in any HTML file
 - After fetching: restrict key to `https://lihan72.github.io/*` in Google Cloud Console
 - Before fetching: temporarily set restriction to "None"
 - Monthly cost: well under $1 for ~100 place fetches
@@ -151,10 +193,16 @@ let mapMarkers = {};
 buildFilters(); buildSuburbSelect(); render();
 ```
 
-**Place data shape in `const ALL`:**
+**Place data shape in `data/places.json`:**
 ```javascript
-{ name, cat, address, rating, ratingCount, priceLevel, photo, mapsUrl }
+{
+  name, cat, address, rating, ratingCount, priceLevel, photo, mapsUrl,
+  website,    // from fetch_websites.py — shown as "Website" button on card
+  instagram,  // handle without @ — shown as "Instagram" button on card (fallback for no website)
+}
 ```
+- `website` and `instagram` are optional — button only appears if field is present and non-null
+- Instagram is shown for all places that have it, but semi-auto search targets places without a website
 
 ---
 
