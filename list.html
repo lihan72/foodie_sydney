@@ -681,6 +681,7 @@ fetch("data/places.json")
     buildFilters();
     buildSuburbSelect();
     render();
+    initMap();
   });
 
 // ── SUBURB COORDINATES (approximate) ────────────────────────────────────
@@ -785,10 +786,8 @@ function updateMapMarkers() {
   });
 }
 
-// Init map after page loads
+// Sync sticky map panel top with header height
 window.addEventListener("load", () => {
-  initMap();
-  // Sync sticky top with header height
   const hh = document.querySelector("header").offsetHeight;
   document.querySelector(".map-panel").style.top = hh + "px";
 });
