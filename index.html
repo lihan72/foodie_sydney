@@ -339,7 +339,7 @@
       A personal collection of restaurants, cafes, and hidden gems across Sydney — built from real visits, real cravings, and a lot of Google Maps pins.
     </p>
     <a class="hero-cta" href="list.html">
-      Explore 108 Places
+      Explore <span id="hero-count">…</span> Places
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
     </a>
   </div>
@@ -391,12 +391,12 @@
 <hr class="divider">
 
 <section class="preview">
-  <h2>108 places. All personally saved.</h2>
+  <h2><span id="preview-count">…</span> places. All personally saved.</h2>
   <p>From hole-in-the-wall ramen spots to Saturday morning bakeries — this is the full list.</p>
 
   <div class="stats">
     <div class="stat">
-      <div class="stat-num">108</div>
+      <div class="stat-num" id="stat-count">…</div>
       <div class="stat-label">Places</div>
     </div>
     <div class="stat">
@@ -419,5 +419,27 @@
   Made with 🍜 and a lot of Google Maps pins &nbsp;·&nbsp; Lihan's Sydney Foodie Guide
 </footer>
 
+<script>
+(async () => {
+  const SUPABASE_URL  = 'https://asoztecurnpmqfbvjago.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzb3p0ZWN1cm5wbXFmYnZqYWdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTc5NDcsImV4cCI6MjA5MzI5Mzk0N30.r413pVPiLhAE0od3Wm1JEDYmtk5ka7eUKmqaN4bSmPs';
+  const headers = { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` };
+
+  const [base, customRows, hiddenRows] = await Promise.all([
+    fetch('data/places.json?_=' + Date.now()).then(r => r.json()).catch(() => []),
+    fetch(`${SUPABASE_URL}/rest/v1/custom_places?select=name`, { headers }).then(r => r.json()).catch(() => []),
+    fetch(`${SUPABASE_URL}/rest/v1/hidden_places?select=place_name`, { headers }).then(r => r.json()).catch(() => []),
+  ]);
+
+  const custom = Array.isArray(customRows) ? customRows : [];
+  const hiddenSet = new Set(Array.isArray(hiddenRows) ? hiddenRows.map(r => r.place_name) : []);
+  const combined = [...base, ...custom.map(r => ({ name: r.name }))];
+  const total = combined.filter(p => !hiddenSet.has(p.name)).length;
+
+  document.getElementById('hero-count').textContent    = total;
+  document.getElementById('preview-count').textContent = total;
+  document.getElementById('stat-count').textContent    = total;
+})();
+</script>
 </body>
 </html>

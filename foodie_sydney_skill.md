@@ -2,7 +2,8 @@
 
 > Personal reference for Lihan.  
 > Repo: https://github.com/lihan72/foodie_sydney  
-> Live: https://lihan72.github.io/foodie_sydney
+> Live: https://lihan72.github.io/foodie_sydney  
+> Place count: **dynamic** — `data/places.json` (107 base) + Supabase `custom_places` − Supabase `hidden_places`. Home page (`index.html`) and list page load the same count at runtime. Do NOT hardcode a number.
 
 ---
 
@@ -22,11 +23,12 @@ foodie_sydney/
 │   ├── places.csv        # Google Takeout export (your source)
 │   └── places_enriched.json  # Output from fetch_places.py
 └── scripts/
-    ├── fetch_places.py   # Fetch details + CDN photos from Google Places API
-    ├── fetch_websites.py # Enrich data/places.json with website URLs (Places API)
-    ├── find_instagram.py # Find Instagram handles for places without a website
-    ├── inject_places.py  # Copy places_enriched.json → data/places.json
-    └── remove_place.py   # Remove a place from data/places.json by name
+    ├── fetch_places.py    # Fetch details + CDN photos from Google Places API
+    ├── fetch_websites.py  # Enrich data/places.json with website URLs (Places API)
+    ├── find_instagram.py  # Find Instagram handles for places without a website
+    ├── inject_places.py   # Copy places_enriched.json → data/places.json
+    ├── process_photos.py  # Resize photos + fuzzy-match to place names → updates reviews.json
+    └── remove_place.py    # Remove a place from data/places.json by name
 ```
 
 > **Local testing:** `list.html` uses `fetch()` so it won't work from `file://`.  
@@ -87,6 +89,54 @@ Edit `data/places.json` and add `"instagram": "handle_without_@"` to any entry:
   ...
 }
 ```
+
+---
+
+### Add personal photos + mark as visited
+
+**Workflow (drop & run):**
+```bash
+# 1. Drop your photos into photos/ — name them anything close to the place name:
+#    "Ramen Auru.jpg", "ramen-auru-2.jpg", "nikaido visit.jpg" — all work
+# 2. Run the script — it resizes to 800px/300KB and fuzzy-matches to place names
+python scripts/process_photos.py
+# 3. Open data/reviews.json and add your personal note + dish breakdown
+# 4. Deploy
+git add photos/ data/reviews.json
+git commit -m "Add photos and reviews"
+git push
+```
+
+**Fuzzy matching examples** (filename → matched place):
+```
+Ramen Auru.jpg          → Ramen Auru        ✓
+ramen-auru-2.jpg        → Ramen Auru        ✓
+nikaido.jpg             → Nikaido 二階堂...  ✓
+cloudhaus.jpg           → Cloudhaus Cafe    ✓
+bestea.jpg              → BESTEA SHOPPE...  ✓
+```
+If a photo doesn't match (score too low), the script tells you — rename and re-run.
+
+**Review structure in `data/reviews.json`:**
+```json
+{
+  "Ramen Auru": {
+    "status": "visited",
+    "date": "2024-03",
+    "note": "Best tonkotsu in Sydney. Go on a weekday.",
+    "dishes": [
+      { "name": "Tonkotsu Ramen", "verdict": "must", "note": "Rich broth, perfect noodles" },
+      { "name": "Gyoza",          "verdict": "okay", "note": "Nothing special" },
+      { "name": "Karaage",        "verdict": "skip", "note": "Too oily" }
+    ],
+    "photos": ["ramen-auru.jpg", "ramen-auru-2.jpg"]
+  },
+  "Komaru": { "status": "want" }
+}
+```
+`verdict` options: `must` 🔥 · `okay` 👍 · `skip` 👎
+
+**Requirements:** `pip3 install Pillow` (one-time setup)
 
 ### Deploy your own changes (branch protection ON, required approvals = 1)
 ```bash

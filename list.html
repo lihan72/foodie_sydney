@@ -132,6 +132,7 @@
     .filters::-webkit-scrollbar { display: none; }
 
     .pill {
+      --c: var(--accent);
       flex-shrink: 0;
       padding: 6px 14px;
       border-radius: 24px;
@@ -145,29 +146,46 @@
       color: var(--text-muted);
       letter-spacing: 0.01em;
     }
-    .pill:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-
-    /* Category colours */
-    .pill[data-cat="all"]        { --c: #c87941; }
-    .pill[data-cat="japanese"]   { --c: #e8570a; }
-    .pill[data-cat="chinese"]    { --c: #d42b2b; }
-    .pill[data-cat="korean"]     { --c: #8b2be2; }
-    .pill[data-cat="thai"]       { --c: #c49600; }
-    .pill[data-cat="vietnamese"] { --c: #0d8c4a; }
-    .pill[data-cat="malaysian"]  { --c: #0077b6; }
-    .pill[data-cat="indian"]     { --c: #c05a00; }
-    .pill[data-cat="cafe"]       { --c: #6d4c41; }
-    .pill[data-cat="bakery"]     { --c: #d4548a; }
-    .pill[data-cat="tea"]        { --c: #2a9d6a; }
-    .pill[data-cat="western"]    { --c: #455a64; }
-
-    .pill:hover { border-color: var(--c); color: var(--c); }
+    .pill:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.08); border-color: var(--c); color: var(--c); }
     .pill.active {
       background: var(--c);
       border-color: var(--c);
       color: #fff;
       box-shadow: 0 3px 10px rgba(0,0,0,.18);
     }
+
+    /* ── CUISINE DROPDOWN ── */
+    .cat-select-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .cat-select-wrap::after {
+      content: "▾";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    select#cat {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 6px 28px 6px 12px;
+      border-radius: 24px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      outline: none;
+      transition: border-color .15s, color .15s;
+      white-space: nowrap;
+    }
+    select#cat:focus, select#cat:hover { border-color: var(--accent); color: var(--text); }
+    select#cat.active { border-color: var(--accent); color: var(--brown); background: #fdf0e3; }
 
     /* ── SUBURB DROPDOWN ── */
     .suburb-select-wrap {
@@ -295,6 +313,35 @@
       color: var(--text-muted);
     }
 
+    .card-ratings {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .rating-divider {
+      width: 1px; height: 12px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .personal-rating {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .personal-rating-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
     .price {
       font-size: 0.78rem;
       font-weight: 600;
@@ -401,7 +448,7 @@
       left: 0;
       right: 0;
       max-height: 90vh;
-      background: var(--cream);
+      background: #faf7f2;
       border-radius: 24px 24px 0 0;
       overflow-y: auto;
       z-index: 201;
@@ -524,6 +571,298 @@
       white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── EDIT MODE BANNER ── */
+    .edit-banner {
+      display: none;
+      background: #2a9d6a;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-align: center;
+      padding: 6px 16px;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+    .edit-banner.show { display: flex; }
+    .edit-banner button {
+      background: rgba(255,255,255,.25);
+      border: none;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .edit-banner button:hover { background: rgba(255,255,255,.4); }
+
+    .lock-btn {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .lock-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .lock-btn.active { border-color: #2a9d6a; color: #2a9d6a; background: #edfaf4; }
+
+    /* ── PASSWORD MODAL ── */
+    .pwd-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    .pwd-modal-overlay.open { display: flex; }
+    .pwd-modal {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 28px 24px;
+      width: 320px;
+      max-width: 90vw;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    .pwd-modal h3 { font-size: 1rem; font-weight: 700; color: var(--brown); margin-bottom: 6px; }
+    .pwd-modal p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; }
+    .pwd-modal input[type=password] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color .15s;
+      font-family: inherit;
+    }
+    .pwd-modal input[type=password]:focus { border-color: var(--accent); }
+    .pwd-modal input[type=password].error { border-color: #e53e3e; animation: shake .3s; }
+    .pwd-modal-btns { display: flex; gap: 8px; }
+    .pwd-modal-btns button {
+      flex: 1; padding: 10px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none;
+    }
+    .pwd-modal-btns .btn-unlock { background: var(--accent); color: #fff; }
+    .pwd-modal-btns .btn-close-pwd { background: var(--bg); color: var(--text-muted); border: 1.5px solid var(--border) !important; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    /* ── EDIT FORM ── */
+    .edit-form { display: flex; flex-direction: column; gap: 16px; padding-top: 4px; }
+    .edit-form-title { font-size: 1rem; font-weight: 700; color: var(--brown); }
+    .edit-field label {
+      display: block; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 6px;
+    }
+    .edit-field input[type=text], .edit-field textarea {
+      width: 100%; padding: 9px 12px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 0.88rem; font-family: inherit; outline: none;
+      background: var(--bg); color: var(--text); transition: border-color .15s;
+    }
+    .edit-field input[type=text]:focus,
+    .edit-field textarea:focus { border-color: var(--accent); background: #fff; }
+    .edit-field textarea { resize: vertical; min-height: 80px; }
+
+    .status-radios { display: flex; gap: 8px; }
+    .status-radios label {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 8px; border: 1.5px solid var(--border); border-radius: 10px;
+      cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--text-muted);
+      transition: all .15s; text-transform: none; letter-spacing: 0;
+    }
+    .status-radios input[type=radio] { display: none; }
+    .status-radios label:has(input:checked) { border-color: var(--accent); background: #fdf0e3; color: var(--accent); }
+
+    .dish-editor { display: flex; flex-direction: column; gap: 8px; }
+    .dish-edit-row {
+      display: grid; grid-template-columns: 1fr auto 1fr auto;
+      gap: 6px; align-items: center;
+      background: var(--bg); padding: 8px 10px;
+      border-radius: 10px; border: 1px solid var(--border);
+    }
+    .dish-edit-row input, .dish-edit-row select {
+      padding: 6px 8px; border: 1px solid var(--border);
+      border-radius: 7px; font-size: 0.8rem; font-family: inherit;
+      outline: none; background: #fff;
+    }
+    .dish-edit-row .remove-dish {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 1rem; padding: 2px 4px;
+      border-radius: 6px; transition: color .15s, background .15s;
+    }
+    .dish-edit-row .remove-dish:hover { color: #e53e3e; background: #fff0f0; }
+
+    .add-dish-btn {
+      background: none; border: 1.5px dashed var(--border);
+      border-radius: 10px; padding: 8px; width: 100%;
+      font-size: 0.82rem; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; transition: border-color .15s, color .15s;
+    }
+    .add-dish-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .photo-upload-area {
+      border: 1.5px dashed var(--border); border-radius: 12px;
+      padding: 14px; text-align: center; cursor: pointer;
+      transition: border-color .15s, background .15s; margin-top: 8px;
+    }
+    .photo-upload-area:hover { border-color: var(--accent); background: #fdf0e3; }
+    .photo-upload-area input { display: none; }
+    .photo-upload-label { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+
+    .photo-thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+    .photo-thumb-wrap { position: relative; width: 72px; height: 72px; }
+    .photo-thumb-wrap img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; }
+    .photo-thumb-wrap .remove-photo {
+      position: absolute; top: -6px; right: -6px;
+      background: #e53e3e; color: #fff; border: none; border-radius: 50%;
+      width: 20px; height: 20px; font-size: 0.65rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .photo-thumb-wrap.uploading img { opacity: 0.4; }
+    .photo-thumb-wrap.uploading::after {
+      content: "⏳"; position: absolute;
+      top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 1.2rem;
+    }
+
+    .edit-form-btns { display: flex; gap: 8px; margin-top: 4px; }
+    .edit-form-btns button {
+      flex: 1; padding: 11px; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 700; cursor: pointer; border: none;
+    }
+    .btn-save { background: var(--accent); color: #fff; }
+    .btn-save:hover { opacity: 0.9; }
+    .btn-cancel-edit { background: var(--bg); color: var(--text-muted); border: 1.5px solid var(--border) !important; }
+
+    .edit-btn {
+      background: none; border: 1.5px solid var(--accent); color: var(--accent);
+      padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: background .15s, color .15s;
+    }
+    .edit-btn:hover { background: var(--accent); color: #fff; }
+    .remove-btn { border-color: #e53e3e; color: #e53e3e; }
+    .remove-btn:hover { background: #e53e3e; color: #fff; }
+
+    /* ── RATINGS ── */
+    .ratings-display { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .rating-entry {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px; background: #fff; border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .rater-name { font-size: 0.85rem; font-weight: 650; color: var(--text); }
+    .rater-stars { font-size: 1rem; color: #f5a623; letter-spacing: 1px; }
+
+    .rating-edit-row {
+      display: flex; flex-direction: column; gap: 7px;
+      background: var(--bg); padding: 10px 12px;
+      border-radius: 10px; border: 1px solid var(--border); margin-bottom: 8px;
+    }
+    .rating-top {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .from-label {
+      font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .rating-edit-row input {
+      padding: 6px 8px; border: 1px solid var(--border);
+      border-radius: 7px; font-size: 0.8rem; font-family: inherit;
+      outline: none; background: #fff; width: 100%;
+    }
+    .rater-dish-input::placeholder { color: #bbb; }
+    .star-picker { display: flex; gap: 1px; cursor: pointer; flex-shrink: 0; }
+    .sp-star { font-size: 1.3rem; color: #ddd; transition: color .1s; user-select: none; }
+    .sp-star.on { color: #f5a623; }
+
+    /* ── ADD PLACE FAB ── */
+    .add-place-fab {
+      display: none;
+      position: fixed;
+      bottom: 28px;
+      right: 24px;
+      z-index: 150;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 13px 20px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(200,121,65,.5);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .add-place-fab.show { display: flex; align-items: center; gap: 6px; }
+    .add-place-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(200,121,65,.6); }
+
+    /* ── ADD PLACE FORM (in drawer) ── */
+    .add-place-form { display: flex; flex-direction: column; gap: 14px; padding-top: 4px; }
+    .add-place-form .edit-form-title { font-size: 1rem; font-weight: 700; color: var(--brown); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .add-place-form select {
+      width: 100%; padding: 9px 12px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 0.88rem; font-family: inherit; outline: none;
+      background: var(--bg); color: var(--text); cursor: pointer;
+      transition: border-color .15s;
+    }
+    .add-place-form select:focus { border-color: var(--accent); background: #fff; }
+
+    /* ── GALLERY VIEW ── */
+    .gallery-grid {
+      display: none;
+      columns: 3;
+      column-gap: 12px;
+      padding: 4px 0 20px;
+    }
+    .gallery-grid.show { display: block; }
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 12px;
+      cursor: pointer;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      background: var(--border);
+    }
+    .gallery-item img {
+      width: 100%;
+      display: block;
+      transition: transform .25s;
+    }
+    .gallery-item:hover img { transform: scale(1.04); }
+    .gallery-item-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(42,31,20,.75));
+      color: #fff;
+      padding: 24px 10px 9px;
+      font-size: 0.78rem;
+      font-weight: 650;
+    }
+    .gallery-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    @media (max-width: 640px) {
+      .gallery-grid { columns: 2; }
+    }
 
     /* ── FOOTER ── */
     footer {
@@ -692,6 +1031,7 @@
     <a class="nav-logo" href="index.html">🍜 Lihan's Sydney</a>
     <div class="nav-right">
       <span class="header-sub" id="count"></span>
+      <button class="lock-btn" id="lock-btn" onclick="promptPassword()">🔒 LL&Friends Edit Only</button>
       <a class="nav-home" href="index.html">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Home
@@ -704,7 +1044,22 @@
       <input type="search" id="search" placeholder="Search places…" oninput="render()">
     </div>
     <div class="filter-row">
-      <div class="filters" id="filters"></div>
+      <div class="cat-select-wrap">
+        <select id="cat" onchange="setFilter(this.value)">
+          <option value="all">🍽️ All cuisines</option>
+          <option value="japanese">🍜 Japanese</option>
+          <option value="chinese">🥢 Chinese</option>
+          <option value="korean">🥩 Korean</option>
+          <option value="thai">🌶️ Thai</option>
+          <option value="vietnamese">🥖 Vietnamese</option>
+          <option value="malaysian">🍛 Malaysian</option>
+          <option value="indian">🫓 Indian</option>
+          <option value="cafe">☕ Cafe</option>
+          <option value="bakery">🥐 Bakery</option>
+          <option value="tea">🧋 Tea & Drinks</option>
+          <option value="western">🍽️ Western</option>
+        </select>
+      </div>
       <div class="suburb-select-wrap">
         <select id="suburb" onchange="render()">
           <option value="">📍 All areas</option>
@@ -716,10 +1071,15 @@
     </div>
   </div>
 </header>
+<div class="edit-banner" id="edit-banner">
+  ✏️ Edit mode active
+  <button onclick="exitEditMode()">Lock</button>
+</div>
 
 <div class="page-body">
   <main>
     <div class="grid" id="grid"></div>
+    <div class="gallery-grid" id="gallery-grid"></div>
     <div class="empty" id="empty">
       <div class="empty-icon">🔍</div>
       No places found.
@@ -739,6 +1099,11 @@
 
 <script>
 
+const SUPABASE_URL  = 'https://asoztecurnpmqfbvjago.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzb3p0ZWN1cm5wbXFmYnZqYWdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTc5NDcsImV4cCI6MjA5MzI5Mzk0N30.r413pVPiLhAE0od3Wm1JEDYmtk5ka7eUKmqaN4bSmPs';
+const CLD_CLOUD     = 'dgx67nyjd';
+const CLD_PRESET    = 'Foodie_sydney_photo';
+const EDIT_HASH     = 'eca566b868dbf4a32b82de9aadac999f1b0770a227a59f15aeef2cc13354186f';
 
 const CATS = [
   { id:"all",        label:"All" },
@@ -769,7 +1134,7 @@ const CAT_EMOJI = {
 
 let activeFilter = "all";
 let activeStatus = "all";
-const IS_LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+let editMode = sessionStorage.getItem('editMode') === '1';
 
 function stars(r) {
   if (!r) return "";
@@ -796,9 +1161,9 @@ function getSuburb(addr) {
 }
 
 function buildFilters() {
-  document.getElementById("filters").innerHTML = CATS.map(c =>
-    `<button class="pill${c.id === activeFilter ? " active" : ""}" data-cat="${c.id}" onclick="setFilter('${c.id}')">${c.label}</button>`
-  ).join("");
+  const sel = document.getElementById("cat");
+  sel.value = activeFilter;
+  sel.className = activeFilter !== "all" ? "active" : "";
 }
 
 function buildSuburbSelect() {
@@ -812,13 +1177,16 @@ function buildSuburbSelect() {
 function setFilter(id) {
   activeFilter = id;
   buildFilters();
+  if (activeStatus === 'gallery') { setStatus('all'); return; }
   render();
 }
 
 const STATUS_PILLS = [
-  { id: "all",     label: "All places" },
-  { id: "want",    label: "🔖 Want to go" },
-  { id: "visited", label: "✅ Visited" },
+  { id: "all",      label: "All places" },
+  { id: "want",     label: "🔖 Want to go" },
+  { id: "visited",  label: "✅ Visited" },
+  { id: "reviewed", label: "📝 Has review" },
+  { id: "gallery",  label: "📷 Gallery" },
 ];
 
 function buildStatusFilters() {
@@ -834,13 +1202,32 @@ function setStatus(id) {
 }
 
 function render() {
+  const gallery = document.getElementById('gallery-grid');
+  const grid    = document.getElementById('grid');
+  const empty   = document.getElementById('empty');
+
+  if (activeStatus === 'gallery') {
+    grid.style.display   = 'none';
+    empty.style.display  = 'none';
+    gallery.classList.add('show');
+    renderGallery();
+    document.getElementById("count").textContent = "Gallery";
+    return;
+  }
+  grid.style.display  = '';
+  gallery.classList.remove('show');
+
   const q = document.getElementById("search").value.toLowerCase().trim();
   const suburb = document.getElementById("suburb").value;
   const list = ALL.filter(p => {
     const matchCat = activeFilter === "all" || p.cat === activeFilter;
     const matchQ = !q || p.name.toLowerCase().includes(q) || (p.address || "").toLowerCase().includes(q);
     const matchSuburb = !suburb || getSuburb(p.address) === suburb;
-    const matchStatus = activeStatus === "all" || (REVIEWS[p.name] || {}).status === activeStatus;
+    const rev = REVIEWS[p.name] || {};
+    const matchStatus = activeStatus === "all"
+      || (activeStatus === "reviewed"
+          ? (rev.note || (rev.dishes||[]).length || (rev.photos||[]).length)
+          : rev.status === activeStatus);
     return matchCat && matchQ && matchSuburb && matchStatus;
   });
   document.getElementById("suburb").className = suburb ? "active" : "";
@@ -855,9 +1242,6 @@ function render() {
 
   document.getElementById("count").textContent = list.length + " places";
 
-  const grid = document.getElementById("grid");
-  const empty = document.getElementById("empty");
-
   if (!list.length) {
     grid.innerHTML = "";
     empty.style.display = "block";
@@ -871,25 +1255,45 @@ function render() {
       : "";
     const placeholder = `<div class="card-photo-placeholder" ${p.photo ? 'style="display:none"' : ""}>${CAT_EMOJI[p.cat] || "🍴"}</div>`;
 
-    const ratingHtml = p.rating
-      ? `<span class="rating">
+    const suburb = getSuburb(p.address);
+    const rev = REVIEWS[p.name] || {};
+
+    const googleRatingHtml = p.rating
+      ? `<span class="rating" title="Google rating">
            <span class="rating-star">★</span>
            ${p.rating}
            ${p.ratingCount ? `<span class="rating-count">(${p.ratingCount >= 1000 ? (p.ratingCount/1000).toFixed(1)+"k" : p.ratingCount})</span>` : ""}
+           <span class="personal-rating-label">Google</span>
          </span>`
+      : "";
+
+    const personalRatings = rev.ratings || [];
+    const personalAvg = personalRatings.length
+      ? (personalRatings.reduce((s, r) => s + r.score, 0) / personalRatings.length).toFixed(1)
+      : null;
+    const personalRatingHtml = personalAvg
+      ? `<span class="personal-rating" title="LL&Friends rating">
+           ❤️ ${personalAvg}
+           <span class="personal-rating-label">LL&Friends</span>
+         </span>`
+      : "";
+
+    const ratingHtml = (googleRatingHtml || personalRatingHtml)
+      ? `<div class="card-ratings">
+           ${googleRatingHtml}
+           ${googleRatingHtml && personalRatingHtml ? '<div class="rating-divider"></div>' : ""}
+           ${personalRatingHtml}
+         </div>`
       : "";
 
     const priceHtml = p.priceLevel != null
       ? `<span class="price">${price(p.priceLevel)}</span>`
       : "";
-
-    const suburb = getSuburb(p.address);
-    const rev = REVIEWS[p.name] || {};
     const status = rev.status || "";
     const badgeIcon = status === "visited" ? "✅" : status === "want" ? "🔖" : "";
     const toggleIcon = status === "visited" ? "✅" : status === "want" ? "🔖" : "＋";
     const toggleTitle = status === "visited" ? "Visited" : status === "want" ? "Want to go" : "Mark this place";
-    const cardClick = status === "visited"
+    const cardClick = (editMode || status === "visited")
       ? `openDrawer('${p.name.replace(/'/g, "\\'")}')`
       : `focusSuburb('${suburb.replace(/'/g, "\\'")}')`;
 
@@ -905,7 +1309,7 @@ function render() {
         <div class="card-footer">
           <span class="cat-tag c-${p.cat}">${CAT_LABEL[p.cat]}</span>
           <div class="card-links" onclick="event.stopPropagation()">
-            ${IS_LOCAL ? `<button class="toggle-btn" onclick="cycleStatus('${p.name.replace(/'/g, "\\'")}', event)" title="${toggleTitle}">${toggleIcon}</button>` : ""}
+            ${editMode ? `<button class="toggle-btn" onclick="cycleStatus('${p.name.replace(/'/g, "\\'")}', event)" title="${toggleTitle}">${toggleIcon}</button>` : ""}
             ${p.website ? `<a class="maps-btn" href="${p.website}" target="_blank" rel="noopener" title="Official website">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               Website
@@ -914,7 +1318,7 @@ function render() {
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               Instagram
             </a>` : ""}
-            <a class="maps-btn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.mapsUrl.split('place_id:')[1] || ''}" target="_blank" rel="noopener" title="Google Maps">
+            <a class="maps-btn" href="${mapsHref(p)}" target="_blank" rel="noopener" title="Google Maps">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               Maps
             </a>
@@ -935,9 +1339,11 @@ let mapMarkers = {};
 
 Promise.all([
   fetch("data/places.json").then(r => r.json()),
-  fetch("data/reviews.json").then(r => r.json()),
-]).then(([places, reviews]) => {
-  ALL = places;
+  loadReviews(),
+  loadCustomPlaces(),
+  loadHiddenPlaces(),
+]).then(([places, reviews, custom, hidden]) => {
+  ALL = [...places, ...custom].filter(p => !hidden.has(p.name));
   REVIEWS = reviews;
   buildFilters();
   buildStatusFilters();
@@ -945,7 +1351,37 @@ Promise.all([
   render();
   initMap();
   handleShareParam();
+  if (editMode) enterEditMode();
 });
+
+// ── GALLERY ───────────────────────────────────────────────────────────────
+function renderGallery() {
+  const items = [];
+  Object.entries(REVIEWS).forEach(([name, rev]) => {
+    (rev.photos || []).filter(Boolean).forEach(url => items.push({ name, url }));
+  });
+
+  const gallery = document.getElementById('gallery-grid');
+  if (!items.length) {
+    gallery.innerHTML = '<div class="gallery-empty">📷 No photos yet — add reviews with photos to see them here.</div>';
+    return;
+  }
+  gallery.innerHTML = items.map(({ name, url }) =>
+    `<div class="gallery-item" onclick="galleryClick('${name.replace(/'/g, "\\'")}')">
+       <img src="${url}" alt="${name}" loading="lazy">
+       <div class="gallery-item-label">${name}</div>
+     </div>`
+  ).join('');
+}
+
+function galleryClick(name) {
+  const p = ALL.find(x => x.name === name);
+  openDrawer(name);
+  if (p) {
+    const suburb = getSuburb(p.address);
+    if (suburb) focusSuburb(suburb);
+  }
+}
 
 // ── SUBURB COORDINATES (approximate) ────────────────────────────────────
 const SUBURB_COORDS = {
@@ -1050,6 +1486,12 @@ function updateMapMarkers() {
 }
 
 // ── HELPERS ──────────────────────────────────────────────────────────────
+function mapsHref(p) {
+  const pid = p.mapsUrl ? (p.mapsUrl.split('place_id:')[1] || '') : '';
+  const base = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}`;
+  return pid ? base + `&query_place_id=${pid}` : base;
+}
+
 function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
@@ -1067,10 +1509,16 @@ function cycleStatus(name, e) {
     REVIEWS[name] = Object.keys(rest).length ? rest : undefined;
     if (!REVIEWS[name]) delete REVIEWS[name];
   }
+  if (editMode) saveReview(name, REVIEWS[name] || {});
   render();
 }
 
 // ── DRAWER ───────────────────────────────────────────────────────────────
+function starsDisplay(score) {
+  const n = Math.round(score);
+  return '★'.repeat(n) + '☆'.repeat(5 - n);
+}
+
 const VERDICT_ICON = { must: "🔥", okay: "👍", skip: "👎" };
 const VERDICT_LABEL = { must: "Must try", okay: "It's okay", skip: "Skip" };
 
@@ -1081,7 +1529,7 @@ function openDrawer(name) {
 
   const photosHtml = (rev.photos || []).length
     ? `<div class="drawer-photo-strip">${rev.photos.map(f =>
-        `<img src="photos/${f}" alt="${name}">`).join("")}</div>`
+        `<img src="${f.startsWith('http') ? f : 'photos/' + f}" alt="${name}">`).join("")}</div>`
     : "";
 
   const noteHtml = rev.note
@@ -1100,12 +1548,28 @@ function openDrawer(name) {
         </div>`).join("")}`
     : "";
 
+  const ratingsHtml = (rev.ratings || []).length
+    ? `<div class="drawer-section-title">Ratings</div>
+       <div class="ratings-display">
+         ${rev.ratings.map(r => `
+           <div class="rating-entry">
+             <div>
+               <span class="rater-name">From ${r.name}</span>
+               ${r.dish ? `<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">${r.dish}</div>` : ''}
+             </div>
+             <span class="rater-stars">${starsDisplay(r.score)}</span>
+           </div>`).join('')}
+       </div>`
+    : '';
+
   const actionsHtml = `
     <div class="drawer-actions">
       ${p.website ? `<a class="maps-btn" href="${p.website}" target="_blank" rel="noopener">🌐 Website</a>` : ""}
       ${p.instagram ? `<a class="maps-btn insta-btn" href="https://instagram.com/${p.instagram}" target="_blank" rel="noopener">📷 Instagram</a>` : ""}
-      <a class="maps-btn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.mapsUrl.split('place_id:')[1] || ''}" target="_blank" rel="noopener">📍 Maps</a>
+      <a class="maps-btn" href="${mapsHref(p)}" target="_blank" rel="noopener">📍 Maps</a>
       <button class="maps-btn" onclick="sharePlace('${name.replace(/'/g, "\\'")}', event)">🔗 Share</button>
+      ${editMode ? `<button class="edit-btn" onclick="openEditForm('${name.replace(/'/g, "\\'")}')">✏️ Edit</button>` : ""}
+      ${editMode ? `<button class="edit-btn remove-btn" onclick="removePlace('${name.replace(/'/g, "\\'")}', ${p._custom ? 'true' : 'false'})">🗑 Remove</button>` : ""}
     </div>`;
 
   document.getElementById("drawer-inner").innerHTML = `
@@ -1113,6 +1577,7 @@ function openDrawer(name) {
     <div class="drawer-name">${name}</div>
     ${rev.date ? `<div class="drawer-date">Visited ${rev.date}</div>` : ""}
     ${noteHtml}
+    ${ratingsHtml}
     ${dishesHtml}
     ${actionsHtml}
   `;
@@ -1192,7 +1657,485 @@ window.addEventListener("load", () => {
   document.querySelector(".map-panel").style.top = hh + "px";
 });
 
+// ── SUPABASE ──────────────────────────────────────────────────────────────
+async function loadReviews() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews?select=*`, {
+      headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` }
+    });
+    const rows = await res.json();
+    const obj = {};
+    rows.forEach(r => {
+      const rev = {};
+      if (r.status)       rev.status = r.status;
+      if (r.visited_date) rev.date   = r.visited_date;
+      if (r.note)         rev.note   = r.note;
+      rev.dishes  = r.dishes  || [];
+      rev.photos  = r.photos  || [];
+      rev.ratings = r.ratings || [];
+      obj[r.place_name] = rev;
+    });
+    return obj;
+  } catch(e) {
+    console.warn('Could not load reviews from Supabase', e);
+    return {};
+  }
+}
+
+async function saveReview(placeName, data) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON,
+        Authorization: `Bearer ${SUPABASE_ANON}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({
+        place_name:   placeName,
+        status:       data.status || null,
+        visited_date: data.date   || null,
+        note:         data.note   || null,
+        dishes:       data.dishes   || [],
+        photos:       data.photos   || [],
+        ratings:      data.ratings  || [],
+      }),
+    });
+  } catch(e) {
+    console.warn('Save failed', e);
+    throw e;
+  }
+}
+
+// ── CUSTOM PLACES ────────────────────────────────────────────────────────
+async function loadCustomPlaces() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/custom_places?select=*`, {
+      headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` }
+    });
+    const rows = await res.json();
+    return rows.map(r => ({
+      name:     r.name,
+      cat:      r.cat || 'western',
+      address:  r.address || '',
+      mapsUrl:  r.maps_url || '',
+      website:  r.website || '',
+      instagram:r.instagram || '',
+      _custom:  true,
+    }));
+  } catch(e) {
+    console.warn('Could not load custom places', e);
+    return [];
+  }
+}
+
+async function saveCustomPlace(data) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/custom_places`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON,
+      Authorization: `Bearer ${SUPABASE_ANON}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    },
+    body: JSON.stringify({
+      name:      data.name,
+      cat:       data.cat,
+      address:   data.address  || null,
+      maps_url:  data.mapsUrl  || null,
+      website:   data.website  || null,
+      instagram: data.instagram|| null,
+    }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+function openAddPlaceForm() {
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  const catOptions = [
+    'japanese','chinese','korean','thai','vietnamese',
+    'malaysian','indian','cafe','bakery','tea','western'
+  ].map(c => `<option value="${c}">${CAT_LABEL[c]}</option>`).join('');
+
+  document.getElementById('drawer-inner').innerHTML = `
+    <div class="add-place-form">
+      <div class="edit-form-title">➕ Add a new place</div>
+
+      <div class="edit-field">
+        <label>Place name *</label>
+        <input type="text" id="new-name" placeholder="e.g. Ramen Auru">
+      </div>
+
+      <div class="form-row">
+        <div class="edit-field">
+          <label>Category</label>
+          <select id="new-cat">${catOptions}</select>
+        </div>
+        <div class="edit-field">
+          <label>Suburb / Address</label>
+          <input type="text" id="new-address" placeholder="e.g. Newtown NSW 2042">
+        </div>
+      </div>
+
+      <div class="edit-field">
+        <label>Google Maps URL (optional)</label>
+        <input type="text" id="new-mapsurl" placeholder="Paste from Google Maps share link">
+      </div>
+
+      <div class="form-row">
+        <div class="edit-field">
+          <label>Website (optional)</label>
+          <input type="text" id="new-website" placeholder="https://...">
+        </div>
+        <div class="edit-field">
+          <label>Instagram (optional)</label>
+          <input type="text" id="new-instagram" placeholder="handle without @">
+        </div>
+      </div>
+
+      <div class="edit-form-btns">
+        <button class="btn-save" onclick="saveNewPlace()">Add Place</button>
+        <button class="btn-cancel-edit" onclick="closeDrawer()">Cancel</button>
+      </div>
+    </div>
+  `;
+}
+
+async function saveNewPlace() {
+  const name = (document.getElementById('new-name').value || '').trim();
+  if (!name) { showToast('Name is required'); return; }
+  if (ALL.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+    showToast('Place already exists'); return;
+  }
+
+  const data = {
+    name,
+    cat:       document.getElementById('new-cat').value,
+    address:   document.getElementById('new-address').value.trim(),
+    mapsUrl:   document.getElementById('new-mapsurl').value.trim(),
+    website:   document.getElementById('new-website').value.trim(),
+    instagram: document.getElementById('new-instagram').value.trim().replace(/^@/, ''),
+  };
+
+  try {
+    await saveCustomPlace(data);
+    ALL.push({ ...data, _custom: true });
+    buildSuburbSelect();
+    render();
+    closeDrawer();
+    showToast(`"${name}" added!`);
+  } catch(e) {
+    showToast('Failed to save — try again');
+  }
+}
+
+async function loadHiddenPlaces() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/hidden_places?select=place_name`, {
+      headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` }
+    });
+    const rows = await res.json();
+    return new Set(Array.isArray(rows) ? rows.map(r => r.place_name) : []);
+  } catch(e) {
+    return new Set();
+  }
+}
+
+async function removePlace(name, isCustom) {
+  if (!confirm(`Remove "${name}" from the list? This cannot be undone.`)) return;
+  try {
+    if (isCustom) {
+      await fetch(`${SUPABASE_URL}/rest/v1/custom_places?name=eq.${encodeURIComponent(name)}`, {
+        method: 'DELETE',
+        headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` },
+      });
+    } else {
+      await fetch(`${SUPABASE_URL}/rest/v1/hidden_places`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_ANON,
+          Authorization: `Bearer ${SUPABASE_ANON}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates',
+        },
+        body: JSON.stringify({ place_name: name }),
+      });
+    }
+    ALL = ALL.filter(p => p.name !== name);
+    closeDrawer();
+    buildSuburbSelect();
+    render();
+    showToast(`"${name}" removed`);
+  } catch(e) {
+    showToast('Remove failed — try again');
+  }
+}
+
+// ── CLOUDINARY ────────────────────────────────────────────────────────────
+async function uploadPhoto(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLD_PRESET);
+  fd.append('folder', 'foodie_sydney');
+  const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/image/upload`, { method: 'POST', body: fd });
+  const data = await res.json();
+  if (!data.secure_url) throw new Error('Upload failed');
+  return data.secure_url;
+}
+
+// ── PASSWORD / EDIT MODE ──────────────────────────────────────────────────
+async function hashPassword(pwd) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function promptPassword() {
+  if (editMode) { exitEditMode(); return; }
+  document.getElementById('pwd-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('pwd-input').focus(), 100);
+}
+
+async function submitPassword() {
+  const input = document.getElementById('pwd-input');
+  const hash  = await hashPassword(input.value);
+  if (hash === EDIT_HASH) {
+    sessionStorage.setItem('editMode', '1');
+    document.getElementById('pwd-modal-overlay').classList.remove('open');
+    enterEditMode();
+  } else {
+    input.classList.add('error');
+    setTimeout(() => input.classList.remove('error'), 400);
+    input.value = '';
+    input.focus();
+  }
+}
+
+function enterEditMode() {
+  editMode = true;
+  document.getElementById('edit-banner').classList.add('show');
+  document.getElementById('add-place-fab').classList.add('show');
+  const btn = document.getElementById('lock-btn');
+  btn.textContent = '✏️ Editing';
+  btn.classList.add('active');
+  render();
+}
+
+function exitEditMode() {
+  editMode = false;
+  sessionStorage.removeItem('editMode');
+  document.getElementById('edit-banner').classList.remove('show');
+  document.getElementById('add-place-fab').classList.remove('show');
+  const btn = document.getElementById('lock-btn');
+  btn.textContent = '🔒 LL&Friends Edit Only';
+  btn.classList.remove('active');
+  render();
+}
+
+// ── EDIT FORM ─────────────────────────────────────────────────────────────
+let editPhotos  = [];
+
+function openEditForm(name) {
+  const rev = REVIEWS[name] || {};
+  editPhotos  = [...(rev.photos  || [])];
+
+  document.getElementById('drawer-inner').innerHTML = `
+    <div class="edit-form">
+      <div class="edit-form-title">✏️ ${name}</div>
+
+      <div class="edit-field">
+        <label>Status</label>
+        <div class="status-radios">
+          <label><input type="radio" name="edit-status" value=""> <span>— None</span></label>
+          <label><input type="radio" name="edit-status" value="want"> <span>🔖 Want</span></label>
+          <label><input type="radio" name="edit-status" value="visited"> <span>✅ Visited</span></label>
+        </div>
+      </div>
+
+      <div class="edit-field">
+        <label>Date visited</label>
+        <input type="text" id="edit-date" placeholder="e.g. 2025-03" value="${rev.date || ''}">
+      </div>
+
+      <div class="edit-field">
+        <label>Your note</label>
+        <textarea id="edit-note" placeholder="How was it?">${rev.note || ''}</textarea>
+      </div>
+
+      <div class="edit-field">
+        <label>Ratings</label>
+        <div id="ratings-editor"></div>
+        <button class="add-dish-btn" onclick="addRatingRow()">+ Add rating</button>
+      </div>
+
+      <div class="edit-field">
+        <label>Dish breakdown</label>
+        <div class="dish-editor" id="dish-editor"></div>
+        <button class="add-dish-btn" onclick="addDishRow()">+ Add dish</button>
+      </div>
+
+      <div class="edit-field">
+        <label>Photos</label>
+        <div class="photo-thumbs" id="photo-thumbs"></div>
+        <div class="photo-upload-area" onclick="document.getElementById('photo-file-input').click()">
+          <input type="file" id="photo-file-input" accept="image/*" multiple onchange="handlePhotoUpload(event)">
+          <span class="photo-upload-label">📷 Tap to upload photos</span>
+        </div>
+      </div>
+
+      <div class="edit-form-btns">
+        <button class="btn-save" onclick="saveEditForm('${name.replace(/'/g, "\\'")}')">Save</button>
+        <button class="btn-cancel-edit" onclick="openDrawer('${name.replace(/'/g, "\\'")}')">Cancel</button>
+      </div>
+    </div>
+  `;
+
+  const statusVal = rev.status || '';
+  const radio = document.querySelector(`input[name="edit-status"][value="${statusVal}"]`);
+  if (radio) radio.checked = true;
+
+  (rev.ratings || []).forEach(r => addRatingRow(r));
+  (rev.dishes  || []).forEach(d => addDishRow(d));
+  renderPhotoThumbs();
+}
+
+function addDishRow(dish = {}) {
+  const row = document.createElement('div');
+  row.className = 'dish-edit-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Dish name" value="${(dish.name || '').replace(/"/g, '&quot;')}" class="dish-name-input">
+    <select class="dish-verdict-select">
+      <option value="must" ${dish.verdict === 'must' ? 'selected' : ''}>🔥 Must</option>
+      <option value="okay" ${dish.verdict === 'okay' ? 'selected' : ''}>👍 Okay</option>
+      <option value="skip" ${dish.verdict === 'skip' ? 'selected' : ''}>👎 Skip</option>
+    </select>
+    <input type="text" placeholder="Note (optional)" value="${(dish.note || '').replace(/"/g, '&quot;')}" class="dish-note-input">
+    <button class="remove-dish" onclick="this.closest('.dish-edit-row').remove()">✕</button>
+  `;
+  document.getElementById('dish-editor').appendChild(row);
+}
+
+function addRatingRow(rating = {}) {
+  const score = rating.score || 0;
+  const idx   = document.querySelectorAll('.rating-edit-row').length;
+  const row   = document.createElement('div');
+  row.className = 'rating-edit-row';
+  row.innerHTML = `
+    <div class="rating-top">
+      <span class="from-label">From</span>
+      <input type="text" placeholder="Name (e.g. Lihan)" class="rater-name-input"
+             value="${(rating.name || '').replace(/"/g, '&quot;')}" style="flex:1">
+      <div class="star-picker" id="sp-${idx}" data-score="${score}">
+        ${[1,2,3,4,5].map(v =>
+          `<span class="sp-star${v <= score ? ' on' : ''}" data-val="${v}" onclick="clickStar(this)">★</span>`
+        ).join('')}
+      </div>
+      <button class="remove-dish" onclick="this.closest('.rating-edit-row').remove()">✕</button>
+    </div>
+    <input type="text" placeholder="Highlight dish (optional, e.g. Tonkotsu Ramen)"
+           class="rater-dish-input" value="${(rating.dish || '').replace(/"/g, '&quot;')}">
+  `;
+  document.getElementById('ratings-editor').appendChild(row);
+}
+
+function clickStar(el) {
+  const picker = el.closest('.star-picker');
+  const val    = parseInt(el.dataset.val);
+  picker.dataset.score = val;
+  picker.querySelectorAll('.sp-star').forEach(s => {
+    s.classList.toggle('on', parseInt(s.dataset.val) <= val);
+  });
+}
+
+function renderPhotoThumbs() {
+  const container = document.getElementById('photo-thumbs');
+  if (!container) return;
+  container.innerHTML = editPhotos.map((url, i) =>
+    url ? `<div class="photo-thumb-wrap" id="thumb-${i}">
+      <img src="${url}" alt="photo">
+      <button class="remove-photo" onclick="removeEditPhoto(${i})">✕</button>
+    </div>` : `<div class="photo-thumb-wrap uploading" id="thumb-${i}"><img src="" alt=""></div>`
+  ).join('');
+}
+
+function removeEditPhoto(i) {
+  editPhotos.splice(i, 1);
+  renderPhotoThumbs();
+}
+
+async function handlePhotoUpload(e) {
+  const files = Array.from(e.target.files);
+  for (const file of files) {
+    const idx = editPhotos.length;
+    editPhotos.push('');
+    renderPhotoThumbs();
+    try {
+      const url = await uploadPhoto(file);
+      editPhotos[idx] = url;
+    } catch {
+      editPhotos.splice(idx, 1);
+      showToast('Upload failed, try again');
+    }
+    renderPhotoThumbs();
+  }
+  e.target.value = '';
+}
+
+async function saveEditForm(name) {
+  const statusRadio = document.querySelector('input[name="edit-status"]:checked');
+  const status = statusRadio ? statusRadio.value : '';
+  const date   = (document.getElementById('edit-date').value || '').trim();
+  const note   = (document.getElementById('edit-note').value || '').trim();
+
+  const ratings = Array.from(document.querySelectorAll('.rating-edit-row')).map(row => ({
+    name:  row.querySelector('.rater-name-input').value.trim(),
+    score: parseInt(row.querySelector('.star-picker').dataset.score) || 0,
+    dish:  row.querySelector('.rater-dish-input').value.trim(),
+  })).filter(r => r.name && r.score > 0);
+
+  const dishes = Array.from(document.querySelectorAll('.dish-edit-row')).map(row => ({
+    name:    row.querySelector('.dish-name-input').value.trim(),
+    verdict: row.querySelector('.dish-verdict-select').value,
+    note:    row.querySelector('.dish-note-input').value.trim(),
+  })).filter(d => d.name);
+
+  const data = { status, date, note, ratings, dishes, photos: editPhotos.filter(Boolean) };
+  REVIEWS[name] = data;
+  if (!status && !note && !dishes.length && !data.photos.length) delete REVIEWS[name];
+
+  try {
+    await saveReview(name, data);
+    showToast('Saved!');
+  } catch {
+    showToast('Save failed — check connection');
+  }
+
+  render();
+  openDrawer(name);
+}
+
 </script>
+<button class="add-place-fab" id="add-place-fab" onclick="openAddPlaceForm()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Add Place
+</button>
+
+<div class="pwd-modal-overlay" id="pwd-modal-overlay">
+  <div class="pwd-modal">
+    <h3>🔒 Enter edit password</h3>
+    <p>Enter the shared password to unlock editing.</p>
+    <input type="password" id="pwd-input" placeholder="Password"
+      onkeydown="if(event.key==='Enter')submitPassword()">
+    <div class="pwd-modal-btns">
+      <button class="btn-unlock" onclick="submitPassword()">Unlock</button>
+      <button class="btn-close-pwd" onclick="document.getElementById('pwd-modal-overlay').classList.remove('open')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-handle"></div>
