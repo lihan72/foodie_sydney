@@ -1,0 +1,13 @@
+{
+  "_readme": "Add your personal reviews here. 'status' can be 'visited' or 'want'. For visited places, add note, dishes, and photos. dish verdict: must | okay | skip. photos: filenames in the photos/ folder.",
+  "Ramen Auru": {
+    "status": "visited",
+    "date": "2024-03",
+    "note": "One of my favourites. Rich broth, perfect noodles. Go on a weekday to avoid the queue.",
+    "dishes": [
+      { "name": "Tonkotsu Ramen", "verdict": "must", "note": "Rich broth, perfect noodles" },
+      { "name": "Gyoza",          "verdict": "okay", "note": "Nothing special" }
+    ],
+    "photos": []
+  }
+}

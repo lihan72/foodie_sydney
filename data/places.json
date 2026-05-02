@@ -693,17 +693,6 @@
     "website": "https://leiblecoffee.com.au/"
   },
   {
-    "name": "Leible Coffee",
-    "cat": "cafe",
-    "address": "4 Burlington St, Crows Nest NSW 2065, Australia",
-    "rating": 4.4,
-    "ratingCount": 105,
-    "priceLevel": null,
-    "photo": null,
-    "mapsUrl": "https://www.google.com/maps/place/?q=place_id:ChIJsSFk4X2vEmsRy8zcKBNLFYk",
-    "website": "https://leiblecoffee.com.au/"
-  },
-  {
     "name": "Edition Roasters",
     "cat": "cafe",
     "address": "60 Darling Dr, Haymarket NSW 2000, Australia",
