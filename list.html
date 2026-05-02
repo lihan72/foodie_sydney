@@ -354,6 +354,177 @@
     .c-tea        { background:#edfaf4; color:#1a6644; }
     .c-western    { background:#f2f2f0; color:#444; }
 
+    /* ── CARD BADGE (visited / want) ── */
+    .card { position: relative; }
+
+    .card-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1rem;
+      line-height: 1;
+      z-index: 2;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,.2));
+      pointer-events: none;
+    }
+
+    .card.status-visited { border-color: #4caf7d; box-shadow: 0 0 0 2px rgba(76,175,125,.2); }
+    .card.status-want    { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(200,121,65,.15); }
+
+    /* ── TOGGLE BUTTON ── */
+    .toggle-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px 6px;
+      border-radius: 8px;
+      transition: background .15s, transform .1s;
+      line-height: 1;
+    }
+    .toggle-btn:hover { background: var(--warm); transform: scale(1.15); }
+
+    /* ── DETAIL DRAWER ── */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 200;
+      backdrop-filter: blur(2px);
+    }
+    .drawer-overlay.open { display: block; }
+
+    .drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 90vh;
+      background: var(--cream);
+      border-radius: 24px 24px 0 0;
+      overflow-y: auto;
+      z-index: 201;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.32,.72,0,1);
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+    .drawer.open { transform: translateY(0); }
+
+    .drawer-handle {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      margin: 12px auto 0;
+    }
+
+    .drawer-inner { padding: 16px 24px 32px; }
+
+    .drawer-photo-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin: 16px -24px;
+      padding: 0 24px;
+      scrollbar-width: none;
+    }
+    .drawer-photo-strip img {
+      height: 200px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .drawer-name {
+      font-size: 1.15rem;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      color: var(--brown);
+      margin-top: 8px;
+    }
+
+    .drawer-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .drawer-note {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text);
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #fff;
+      border-radius: 12px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .drawer-section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .dish-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .dish-row:last-child { border-bottom: none; }
+
+    .dish-verdict {
+      font-size: 1rem;
+      flex-shrink: 0;
+      width: 24px;
+      text-align: center;
+    }
+
+    .dish-name {
+      font-size: 0.85rem;
+      font-weight: 650;
+      color: var(--text);
+    }
+
+    .dish-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .drawer-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    /* ── SHARE TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--brown);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s, transform .2s;
+      z-index: 300;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
     /* ── FOOTER ── */
     footer {
       border-top: 1px solid var(--border);
@@ -540,6 +711,9 @@
         </select>
       </div>
     </div>
+    <div class="filter-row" id="status-filter-row">
+      <div class="filters" id="status-filters"></div>
+    </div>
   </div>
 </header>
 
@@ -594,6 +768,8 @@ const CAT_EMOJI = {
 };
 
 let activeFilter = "all";
+let activeStatus = "all";
+const IS_LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 
 function stars(r) {
   if (!r) return "";
@@ -639,6 +815,24 @@ function setFilter(id) {
   render();
 }
 
+const STATUS_PILLS = [
+  { id: "all",     label: "All places" },
+  { id: "want",    label: "🔖 Want to go" },
+  { id: "visited", label: "✅ Visited" },
+];
+
+function buildStatusFilters() {
+  document.getElementById("status-filters").innerHTML = STATUS_PILLS.map(s =>
+    `<button class="pill${s.id === activeStatus ? " active" : ""}" onclick="setStatus('${s.id}')">${s.label}</button>`
+  ).join("");
+}
+
+function setStatus(id) {
+  activeStatus = id;
+  buildStatusFilters();
+  render();
+}
+
 function render() {
   const q = document.getElementById("search").value.toLowerCase().trim();
   const suburb = document.getElementById("suburb").value;
@@ -646,7 +840,8 @@ function render() {
     const matchCat = activeFilter === "all" || p.cat === activeFilter;
     const matchQ = !q || p.name.toLowerCase().includes(q) || (p.address || "").toLowerCase().includes(q);
     const matchSuburb = !suburb || getSuburb(p.address) === suburb;
-    return matchCat && matchQ && matchSuburb;
+    const matchStatus = activeStatus === "all" || (REVIEWS[p.name] || {}).status === activeStatus;
+    return matchCat && matchQ && matchSuburb && matchStatus;
   });
   document.getElementById("suburb").className = suburb ? "active" : "";
   if (leafletMap) {
@@ -689,8 +884,18 @@ function render() {
       : "";
 
     const suburb = getSuburb(p.address);
+    const rev = REVIEWS[p.name] || {};
+    const status = rev.status || "";
+    const badgeIcon = status === "visited" ? "✅" : status === "want" ? "🔖" : "";
+    const toggleIcon = status === "visited" ? "✅" : status === "want" ? "🔖" : "＋";
+    const toggleTitle = status === "visited" ? "Visited" : status === "want" ? "Want to go" : "Mark this place";
+    const cardClick = status === "visited"
+      ? `openDrawer('${p.name.replace(/'/g, "\\'")}')`
+      : `focusSuburb('${suburb.replace(/'/g, "\\'")}')`;
+
     return `
-      <div class="card" onclick="focusSuburb('${suburb.replace(/'/g, "\\'")}')">
+      <div class="card status-${status}" id="card-${slugify(p.name)}" onclick="${cardClick}">
+        ${badgeIcon ? `<div class="card-badge">${badgeIcon}</div>` : ""}
         ${photo}${placeholder}
         <div class="card-body">
           <div class="card-name">${p.name}</div>
@@ -700,6 +905,7 @@ function render() {
         <div class="card-footer">
           <span class="cat-tag c-${p.cat}">${CAT_LABEL[p.cat]}</span>
           <div class="card-links" onclick="event.stopPropagation()">
+            ${IS_LOCAL ? `<button class="toggle-btn" onclick="cycleStatus('${p.name.replace(/'/g, "\\'")}', event)" title="${toggleTitle}">${toggleIcon}</button>` : ""}
             ${p.website ? `<a class="maps-btn" href="${p.website}" target="_blank" rel="noopener" title="Official website">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               Website
@@ -708,10 +914,14 @@ function render() {
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               Instagram
             </a>` : ""}
-            <a class="maps-btn" href="${p.mapsUrl}" target="_blank" rel="noopener" title="Google Maps">
+            <a class="maps-btn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.mapsUrl.split('place_id:')[1] || ''}" target="_blank" rel="noopener" title="Google Maps">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               Maps
             </a>
+            <button class="maps-btn" onclick="sharePlace('${p.name.replace(/'/g, "\\'")}', event)" title="Share">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Share
+            </button>
           </div>
         </div>
       </div>`;
@@ -719,18 +929,23 @@ function render() {
 }
 
 let ALL = [];
+let REVIEWS = {};
 let leafletMap = null;
 let mapMarkers = {};
 
-fetch("data/places.json")
-  .then(r => r.json())
-  .then(data => {
-    ALL = data;
-    buildFilters();
-    buildSuburbSelect();
-    render();
-    initMap();
-  });
+Promise.all([
+  fetch("data/places.json").then(r => r.json()),
+  fetch("data/reviews.json").then(r => r.json()),
+]).then(([places, reviews]) => {
+  ALL = places;
+  REVIEWS = reviews;
+  buildFilters();
+  buildStatusFilters();
+  buildSuburbSelect();
+  render();
+  initMap();
+  handleShareParam();
+});
 
 // ── SUBURB COORDINATES (approximate) ────────────────────────────────────
 const SUBURB_COORDS = {
@@ -834,6 +1049,119 @@ function updateMapMarkers() {
   });
 }
 
+// ── HELPERS ──────────────────────────────────────────────────────────────
+function slugify(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+// ── CYCLE STATUS (toggle button) ─────────────────────────────────────────
+function cycleStatus(name, e) {
+  e.stopPropagation();
+  const rev = REVIEWS[name] || {};
+  const cur = rev.status || "";
+  const next = cur === "" ? "want" : cur === "want" ? "visited" : "";
+  if (next) {
+    REVIEWS[name] = { ...rev, status: next };
+  } else {
+    const { status: _, ...rest } = rev;
+    REVIEWS[name] = Object.keys(rest).length ? rest : undefined;
+    if (!REVIEWS[name]) delete REVIEWS[name];
+  }
+  render();
+}
+
+// ── DRAWER ───────────────────────────────────────────────────────────────
+const VERDICT_ICON = { must: "🔥", okay: "👍", skip: "👎" };
+const VERDICT_LABEL = { must: "Must try", okay: "It's okay", skip: "Skip" };
+
+function openDrawer(name) {
+  const p = ALL.find(x => x.name === name);
+  const rev = REVIEWS[name] || {};
+  if (!p) return;
+
+  const photosHtml = (rev.photos || []).length
+    ? `<div class="drawer-photo-strip">${rev.photos.map(f =>
+        `<img src="photos/${f}" alt="${name}">`).join("")}</div>`
+    : "";
+
+  const noteHtml = rev.note
+    ? `<div class="drawer-note">"${rev.note}"</div>`
+    : "";
+
+  const dishesHtml = (rev.dishes || []).length
+    ? `<div class="drawer-section-title">Dish breakdown</div>
+       ${rev.dishes.map(d => `
+        <div class="dish-row">
+          <div class="dish-verdict" title="${VERDICT_LABEL[d.verdict]}">${VERDICT_ICON[d.verdict] || "•"}</div>
+          <div>
+            <div class="dish-name">${d.name}</div>
+            ${d.note ? `<div class="dish-note">${d.note}</div>` : ""}
+          </div>
+        </div>`).join("")}`
+    : "";
+
+  const actionsHtml = `
+    <div class="drawer-actions">
+      ${p.website ? `<a class="maps-btn" href="${p.website}" target="_blank" rel="noopener">🌐 Website</a>` : ""}
+      ${p.instagram ? `<a class="maps-btn insta-btn" href="https://instagram.com/${p.instagram}" target="_blank" rel="noopener">📷 Instagram</a>` : ""}
+      <a class="maps-btn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}&query_place_id=${p.mapsUrl.split('place_id:')[1] || ''}" target="_blank" rel="noopener">📍 Maps</a>
+      <button class="maps-btn" onclick="sharePlace('${name.replace(/'/g, "\\'")}', event)">🔗 Share</button>
+    </div>`;
+
+  document.getElementById("drawer-inner").innerHTML = `
+    ${photosHtml}
+    <div class="drawer-name">${name}</div>
+    ${rev.date ? `<div class="drawer-date">Visited ${rev.date}</div>` : ""}
+    ${noteHtml}
+    ${dishesHtml}
+    ${actionsHtml}
+  `;
+
+  document.getElementById("drawer-overlay").classList.add("open");
+  document.getElementById("drawer").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeDrawer() {
+  document.getElementById("drawer-overlay").classList.remove("open");
+  document.getElementById("drawer").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+// close drawer on Escape key
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+
+// ── SHARE ────────────────────────────────────────────────────────────────
+function sharePlace(name, e) {
+  e.stopPropagation();
+  const slug = slugify(name);
+  const url = `${location.origin}${location.pathname}?place=${slug}`;
+
+  if (navigator.share) {
+    navigator.share({ title: name, text: `Check out ${name} on Lihan's Sydney Foodie Guide`, url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => showToast("Link copied!"));
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+// ── SHARE URL PARAM ──────────────────────────────────────────────────────
+function handleShareParam() {
+  const slug = new URLSearchParams(location.search).get("place");
+  if (!slug) return;
+  const card = document.getElementById(`card-${slug}`);
+  if (!card) return;
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
+  card.style.outline = `3px solid var(--accent)`;
+  setTimeout(() => card.style.outline = "", 2500);
+}
+
 function focusSuburb(suburb) {
   if (!leafletMap || !suburb || !SUBURB_COORDS[suburb]) return;
   // Show map if hidden
@@ -865,6 +1193,13 @@ window.addEventListener("load", () => {
 });
 
 </script>
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-inner" id="drawer-inner"></div>
+</div>
+<div class="toast" id="toast"></div>
+
 <footer>Made with 🍜 and a lot of Google Maps pins &nbsp;·&nbsp; Lihan's Sydney Foodie Guide</footer>
 </body>
 </html>
